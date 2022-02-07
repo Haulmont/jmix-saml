@@ -33,7 +33,7 @@ import org.springframework.security.saml2.provider.service.authentication.OpenSa
 public class SamlAutoConfiguration {
 
     @EnableWebSecurity
-    public class JmixSamlConfiguration extends WebSecurityConfigurerAdapter {
+    public static class JmixSamlConfiguration extends WebSecurityConfigurerAdapter {
 
         //todo protect REST API
         @Override

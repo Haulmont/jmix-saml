@@ -3,10 +3,7 @@ package io.jmix.saml.converter;
 import io.jmix.saml.user.DefaultJmixSamlUserDetails;
 import org.opensaml.core.xml.XMLObject;
 import org.opensaml.core.xml.schema.*;
-import org.opensaml.saml.saml2.core.Assertion;
-import org.opensaml.saml.saml2.core.Attribute;
-import org.opensaml.saml.saml2.core.AttributeStatement;
-import org.opensaml.saml.saml2.core.Response;
+import org.opensaml.saml.saml2.core.*;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.saml2.provider.service.authentication.*;
@@ -24,7 +21,11 @@ public class SamlResponseAuthenticationConverter implements Converter<OpenSamlAu
         Response response = responseToken.getResponse();
         Saml2AuthenticationToken token = responseToken.getToken();
         Assertion assertion = CollectionUtils.firstElement(response.getAssertions());
-        String username = assertion.getSubject().getNameID().getValue();
+        if (assertion == null) {
+            throw new IllegalStateException("SAML response doesn't contain assertions");
+        }
+        Subject subject = assertion.getSubject();
+        String username = subject.getNameID().getValue();
         Map<String, List<Object>> attributes = getAssertionAttributes(assertion);
         DefaultSaml2AuthenticatedPrincipal delegatePrincipal = new DefaultSaml2AuthenticatedPrincipal(username, attributes);
         DefaultJmixSamlUserDetails principal = new DefaultJmixSamlUserDetails(delegatePrincipal, AuthorityUtils.createAuthorityList("ROLE_USER"));
